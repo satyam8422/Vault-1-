@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vault — Creator/Viewer (Password: satyam)</title>
+<meta name="color-scheme" content="dark light" />
+<style>
+  :root{
+    --bg: #0b0f17;
+    --card: rgba(255,255,255,0.06);
+    --card-2: rgba(255,255,255,0.12);
+    --text: #e9f0ff;
+    --muted: #9fb2d7;
+    --brand: #7c5cff;
+    --brand-2:#13d2ff;
+    --ok:#33d69f; --warn:#ffcc66; --danger:#ff6b6b;
+    --glass: rgba(255,255,255,0.08);
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius: 16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:var(--text); background:
+      radial-gradient(1200px 800px at 10% -10%, rgba(124,92,255,.25), transparent 60%),
+      radial-gradient(900px 700px at 110% 10%, rgba(19,210,255,.2), transparent 55%),
+      linear-gradient(180deg, #090d14, #0b0f17 30%, #0b0f17);
+    min-height:100%;
+  }
+  a{color:var(--brand-2); text-decoration:none}
+  .wrap{
+    max-width:1200px; margin:0 auto; padding:32px 20px 48px;
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px;
+  }
+  .logo{
+    display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.3px;
+    text-transform:uppercase; color:#fff;
+    filter:drop-shadow(0 6px 20px rgba(124,92,255,.45));
+  }
+  .logo .dot{width:14px;height:14px;border-radius:50%;
+    background: conic-gradient(from 120deg, var(--brand), var(--brand-2));
+    box-shadow:0 0 24px rgba(124,92,255,.8), 0 0 40px rgba(19,210,255,.6);
+  }
+  .pill{
+    padding:8px 12px; border-radius:999px; background:var(--card); backdrop-filter: blur(8px);
+    box-shadow:var(--shadow); color:var(--muted); font-size:13px;
+  }
+  .grid{
+    display:grid; grid-template-columns: 1.2fr 2fr; gap:24px;
+  }
+  .card{
+    background:var(--glass); border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    overflow:hidden; position:relative;
+  }
+  .card .head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 16px; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .card .head h3{margin:0; font-size:15px; letter-spacing:.2px; color:#fff}
+  .card .body{padding:16px}
+  .tabs{display:flex; gap:8px; padding:12px}
+  .tab{
+    border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06);
+    padding:10px 12px; border-radius:12px; cursor:pointer; color:#cfe0ff; font-weight:600;
+    transition:.25s transform, .25s background;
+  }
+  .tab[aria-selected="true"]{
+    background:linear-gradient(135deg, rgba(124,92,255,.25), rgba(19,210,255,.18));
+    color:#fff; transform:translateY(-1px);
+  }
+  .login{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:12px;
+  }
+  .field{display:grid; gap:6px}
+  label{font-size:12px; color:var(--muted)}
+  input[type="password"], input[type="text"], input[type="file"], input[type="search"]{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06); color:#fff; outline:none;
+    transition: border .2s, box-shadow .2s, transform .12s ease-out;
+  }
+  input:focus{border-color:rgba(124,92,255,.6); box-shadow:0 0 0 4px rgba(124,92,255,.15)}
+  button{
+    appearance:none; border:0; border-radius:12px; padding:12px 14px; cursor:pointer;
+    color:#08111f; font-weight:800; letter-spacing:.2px;
+    background:linear-gradient(135deg, var(--brand), var(--brand-2));
+    box-shadow: 0 8px 30px rgba(124,92,255,.35), inset 0 -2px 0 rgba(0,0,0,.15);
+    transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+  }
+  button:active{ transform: translateY(1px) scale(.99) }
+  .ghost{ background:rgba(255,255,255,.09); color:#e9f0ff; border:1px solid rgba(255,255,255,.1)}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .hint{font-size:12px; color:var(--muted)}
+  .status{font-size:12px}
+  .ok{color:var(--ok)} .warn{color:var(--warn)} .danger{color:var(--danger)}
+  .gallery{
+    display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; padding:16px;
+  }
+  .item{
+    grid-column: span 4; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08); border-radius:14px; overflow:hidden; position:relative;
+    transition: transform .15s ease, box-shadow .3s ease, border-color .2s ease;
+  }
+  .item:hover{ transform: translateY(-2px); border-color: rgba(124,92,255,.35);
+    box-shadow: 0 12px 30px rgba(124,92,255,.22);}
+  .item .thumb{
+    height:220px; display:grid; place-items:center; background:#0f1420; position:relative;
+  }
+  .item .thumb img{max-width:100%; max-height:100%; object-fit:contain}
+  .tag{
+    position:absolute; top:10px; left:10px; font-size:11px; padding:6px 8px; border-radius:999px;
+    background: rgba(0,0,0,.45); color:#fff; border:1px solid rgba(255,255,255,.15)
+  }
+  .meta{padding:10px 12px; display:grid; gap:4px; font-size:12px; color:#cbd7f3}
+  .meta .name{color:#fff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .meta .sub{opacity:.85}
+  .filters{display:flex; gap:8px; padding:8px 16px 0; flex-wrap:wrap}
+  .chip{
+    border:1px solid rgba(255,255,255,.12); padding:8px 10px; border-radius:999px; font-size:12px; color:#cfe0ff; cursor:pointer;
+    background:rgba(255,255,255,.05);
+  }
+  .chip.active{background:linear-gradient(135deg, rgba(124,92,255,.25), rgba(19,210,255,.18)); color:#fff}
+  .actions{display:flex; gap:8px; padding:12px 12px 16px; align-items:center}
+  .actions a, .actions button.small{
+    font-size:12px; padding:8px 10px; border-radius:10px;
+    background:rgba(255,255,255,.08); color:#e9f0ff; border:1px solid rgba(255,255,255,.12);
+  }
+  .danger-btn{border-color: rgba(255,107,107,.5); color:#ffd9d9}
+  .bar{display:flex; gap:10px; align-items:center; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.08)}
+  .bar .grow{flex:1}
+  .bar h2{margin:0; font-size:18px}
+  .role{padding:6px 10px; border:1px dashed rgba(255,255,255,.2); border-radius:999px; font-size:12px; color:#cfe0ff}
+  .uploader{border:2px dashed rgba(255,255,255,.18); border-radius:16px; padding:16px; text-align:center; background:rgba(255,255,255,.05)}
+  .uploader.drag{border-color: var(--brand-2); background:rgba(19,210,255,.08)}
+  .uploader input{display:none}
+  .uploader .cta{padding:10px 12px}
+  .lightbox{
+    position:fixed; inset:0; background:rgba(9,13,20,.86); display:none; place-items:center; z-index:50;
+    animation:fadeIn .18s ease;
+  }
+  .lightbox.open{display:grid}
+  .frame{
+    width:min(92vw, 1200px); height:min(86vh, 800px);
+    background:#000; border-radius:18px; overflow:hidden; position:relative; box-shadow: 0 30px 80px rgba(0,0,0,.6);
+  }
+  .frame .media{width:100%; height:100%; display:grid; place-items:center; background:#000}
+  .frame img{max-width:100%; max-height:100%; object-fit:contain}
+  .frame iframe, .frame embed, .frame video, .frame audio{width:100%; height:100%}
+  .close{position:absolute; top:12px; right:12px}
+  .badge{font-size:11px; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:#d9e6ff}
+  .fade-in{animation: pop .25s ease;}
+  @keyframes pop{from{opacity:0; transform:scale(.98)} to{opacity:1; transform:scale(1)}}
+  @keyframes fadeIn{from{opacity:0} to{opacity:1}}
+  .footer{opacity:.8; text-align:center; font-size:12px; padding:16px}
+  .hide{display:none !important}
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr}
+    .item{grid-column: span 6}
+  }
+  @media (max-width: 680px){
+    .item{grid-column: span 12}
+    .login{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="dot" aria-hidden="true"></div>
+      <div>Vault</div>
+      <span class="pill">Single‑file | Offline | Secure-ish</span>
+    </div>
+    <div class="row">
+      <span id="rolePill" class="pill">Role: <b>Guest</b></span>
+      <button id="logoutBtn" class="ghost hide" title="Log out">Logout</button>
+    </div>
+  </header>
+
+  <!-- LOGIN CARD -->
+  <section id="loginCard" class="card fade-in">
+    <div class="head">
+      <h3>Login — दो पासवर्ड (Creator / Viewer)</h3>
+      <span class="badge">Default password: <b>satyam</b> 🔐</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Choose role">
+      <button class="tab" role="tab" id="tab-viewer" aria-controls="panel-viewer" aria-selected="true">Viewer</button>
+      <button class="tab" role="tab" id="tab-creator" aria-controls="panel-creator" aria-selected="false">Creator</button>
+    </div>
+
+    <div class="body">
+      <div id="panel-viewer" role="tabpanel" aria-labelledby="tab-viewer">
+        <form id="viewerForm" class="login" autocomplete="on">
+          <!-- Hidden username encourages password managers (Google) -->
+          <input type="text" name="username" autocomplete="username" value="viewer@vault" hidden>
+          <div class="field">
+            <label for="viewerPass">Viewer Password</label>
+            <input id="viewerPass" name="password" type="password" placeholder="Enter viewer password"
+                   autocomplete="current-password" required>
+            <span class="hint">Tip: Google Password Manager prompt appears when you log in successfully.</span>
+          </div>
+          <div class="row">
+            <button type="submit">Enter as Viewer</button>
+            <button type="button" class="ghost" id="saveViewerHint">💡 Save to Google</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="panel-creator" role="tabpanel" aria-labelledby="tab-creator" class="hide">
+        <form id="creatorForm" class="login" autocomplete="on">
+          <input type="text" name="username" autocomplete="username" value="creator@vault" hidden>
+          <div class="field">
+            <label for="creatorPass">Creator Password</label>
+            <input id="creatorPass" name="password" type="password" placeholder="Enter creator password"
+                   autocomplete="current-password" required>
+            <span class="hint">Only Creator को upload/delete की अनुमति है.</span>
+          </div>
+          <div class="row">
+            <button type="submit">Enter as Creator</button>
+            <button type="button" class="ghost" id="saveCreatorHint">💡 Save to Google</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP CARD -->
+  <section id="appCard" class="card fade-in hide" aria-live="polite">
+    <div class="bar">
+      <h2 class="grow">Your Vault</h2>
+      <span class="role" id="roleBadge">Role: Viewer</span>
+      <button class="ghost" id="settingsBtn">Settings</button>
+    </div>
+
+    <!-- CREATOR ONLY CONTROLS -->
+    <div id="creatorControls" class="body hide">
+      <div class="uploader" id="dropZone">
+        <h3 style="margin:0 0 8px">Upload files (Drag & Drop)</h3>
+        <p class="hint" style="margin-top:0">Supported: Photos, Videos, Audio, PDFs, WhatsApp ZIP, others</p>
+        <div class="row" style="justify-content:center">
+          <label class="cta">
+            <input id="fileInput" type="file" multiple
+              accept="image/*,video/*,audio/*,application/pdf,.zip,application/zip,application/x-zip-compressed,*/*">
+            <button type="button">Choose files</button>
+          </label>
+          <button id="clearAllBtn" class="ghost danger-btn" type="button">Delete All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS + SEARCH -->
+    <div class="filters">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="photo">Photos</button>
+      <button class="chip" data-filter="video">Videos</button>
+      <button class="chip" data-filter="audio">Audio</button>
+      <button class="chip" data-filter="pdf">PDF</button>
+      <button class="chip" data-filter="zip">WhatsApp ZIP</button>
+      <button class="chip" data-filter="other">Others</button>
+      <div class="grow"></div>
+      <input type="search" id="searchBox" placeholder="Search files…" />
+    </div>
+
+    <!-- GALLERY -->
+    <div id="gallery" class="gallery" aria-live="polite"></div>
+  </section>
+
+  <!-- SETTINGS (Creator) -->
+  <section id="settingsCard" class="card fade-in hide" style="margin-top:16px">
+    <div class="head">
+      <h3>Settings</h3>
+      <span class="badge">Manage passwords & data</span>
+    </div>
+    <div class="body">
+      <div class="row" style="flex-wrap:wrap">
+        <div class="field" style="min-width:260px">
+          <label for="newCreatorPass">Change Creator Password</label>
+          <input id="newCreatorPass" type="password" placeholder="New creator password">
+        </div>
+        <div class="field" style="min-width:260px">
+          <label for="newViewerPass">Change Viewer Password</label>
+          <input id="newViewerPass" type="password" placeholder="New viewer password">
+        </div>
+        <div class="row" style="width:100%; margin-top:6px">
+          <button id="savePasswordsBtn">Save Passwords</button>
+          <span id="passStatus" class="status hint"></span>
+        </div>
+      </div>
+
+      <hr style="border-color:rgba(255,255,255,.08); margin:18px 0">
+
+      <div class="row" style="flex-wrap:wrap">
+        <button id="exportBtn" class="ghost">Export Vault (.json)</button>
+        <button id="importBtn" class="ghost">Import Vault (.json)</button>
+        <input id="importInput" type="file" accept="application/json" hidden>
+        <span class="hint">Export/Import lets you move your vault to another device/browser.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="lightbox" aria-modal="true" role="dialog">
+    <div class="frame">
+      <button class="ghost close" id="closeLightbox">Close ✖</button>
+      <div id="lightboxMeta" class="badge" style="position:absolute; left:12px; top:12px">Preview</div>
+      <div class="media" id="lightboxMedia"></div>
+    </div>
+  </div>
+
+  <div class="footer">🔨🤖🔧 Made for you — smooth animations, large photo frame, and offline-first UX</div>
+</div>
+
+<script>
+/* ===========================
+   Minimal utility + crypto
+=========================== */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmtBytes = b => {
+  if (b === 0) return '0 B';
+  const k = 1024, sizes = ['B','KB','MB','GB','TB'];
+  const i = Math.floor(Math.log(b)/Math.log(k));
+  return (b/Math.pow(k,i)).toFixed( (i?1:0) ) + ' ' + sizes[i];
+};
+async function sha256(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ===========================
+   Password storage (hashed)
+   Defaults => both 'satyam'
+=========================== */
+const PASS_KEYS = {
+  creator: 'vault.pass.creator',
+  viewer:  'vault.pass.viewer'
+};
+const DEFAULT_PASS = 'satyam';
+
+async function ensureDefaultPasswords(){
+  if(!localStorage.getItem(PASS_KEYS.creator)){
+    localStorage.setItem(PASS_KEYS.creator, await sha256(DEFAULT_PASS));
+  }
+  if(!localStorage.getItem(PASS_KEYS.viewer)){
+    localStorage.setItem(PASS_KEYS.viewer, await sha256(DEFAULT_PASS));
+  }
+}
+function savePasswords({creatorHash, viewerHash}){
+  if(creatorHash) localStorage.setItem(PASS_KEYS.creator, creatorHash);
+  if(viewerHash)  localStorage.setItem(PASS_KEYS.viewer, viewerHash);
+}
+
+/* ===========================
+   IndexedDB (Vault)
+=========================== */
+const DB_NAME = 'vaultDB';
+const DB_STORE = 'files';
+let db;
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = (e)=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(DB_STORE)){
+        const store = db.createObjectStore(DB_STORE, { keyPath: 'id', autoIncrement:true });
+        store.createIndex('by_type','type');
+        store.createIndex('by_name','name');
+        store.createIndex('by_category','category');
+        store.createIndex('by_addedAt','addedAt');
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+function tx(storeNames, mode='readonly'){
+  return db.transaction(storeNames, mode).objectStore(DB_STORE);
+}
+function addFileRec(rec){
+  return new Promise((resolve,reject)=>{
+    const req = tx([DB_STORE], 'readwrite').add(rec);
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+function getAll(){
+  return new Promise((resolve,reject)=>{
+    const req = tx([DB_STORE]).getAll();
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+function del(id){
+  return new Promise((resolve,reject)=>{
+    const req = tx([DB_STORE], 'readwrite').delete(id);
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  });
+}
+function clearAll(){
+  return new Promise((resolve,reject)=>{
+    const req = tx([DB_STORE], 'readwrite').clear();
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+/* ===========================
+   Session + Role
+=========================== */
+let ROLE = 'guest'; // 'viewer' | 'creator'
+function setRole(role){
+  ROLE = role;
+  $('#rolePill').innerHTML = `Role: <b>${role[0].toUpperCase()+role.slice(1)}</b>`;
+  $('#roleBadge').textContent = `Role: ${role[0].toUpperCase()+role.slice(1)}`;
+  $('#logoutBtn').classList.toggle('hide', role==='guest');
+  $('#loginCard').classList.toggle('hide', role!=='guest');
+  $('#appCard').classList.toggle('hide', role==='guest');
+  $('#creatorControls').classList.toggle('hide', role!=='creator');
+  $('#settingsCard').classList.toggle('hide', role!=='creator');
+}
+
+/* ===========================
+   MIME → Category
+=========================== */
+function detectCategory(file){
+  const name = (file.name || '').toLowerCase();
+  const type = (file.type || '').toLowerCase();
+  if(type.startsWith('image/')) return 'photo';
+  if(type.startsWith('video/')) return 'video';
+  if(type.startsWith('audio/')) return 'audio';
+  if(type === 'application/pdf' || name.endsWith('.pdf')) return 'pdf';
+  if(type === 'application/zip' || name.endsWith('.zip')) return 'zip';
+  return 'other';
+}
+const CATEGORY_ICONS = {
+  photo:'🖼️', video:'🎬', audio:'🎵', pdf:'📄', zip:'💬', other:'📦'
+};
+
+/* ===========================
+   Render Gallery
+=========================== */
+let FILES = []; // cached list
+let ACTIVE_FILTER = 'all';
+let SEARCH = '';
+
+function applyFilters(list){
+  return list.filter(f=>{
+    const byCat = (ACTIVE_FILTER==='all') || (f.category===ACTIVE_FILTER);
+    const bySearch = !SEARCH || f.name.toLowerCase().includes(SEARCH) || (f.type||'').includes(SEARCH);
+    return byCat && bySearch;
+  });
+}
+
+function iconFor(cat){ return CATEGORY_ICONS[cat] || '📦'; }
+
+function itemTemplate(f){
+  const sub = `${f.type || 'unknown'} • ${fmtBytes(f.size)} • ${new Date(f.addedAt).toLocaleString()}`;
+  const canDelete = (ROLE==='creator');
+  return `
+  <div class="item" data-id="${f.id}" data-category="${f.category}">
+    <div class="thumb" role="button" tabindex="0" aria-label="Open ${f.name}" data-open>
+      <span class="tag">${iconFor(f.category)} ${f.category.toUpperCase()}</span>
+      ${thumbInner(f)}
+    </div>
+    <div class="meta">
+      <div class="name" title="${f.name}">${f.name}</div>
+      <div class="sub">${sub}</div>
+    </div>
+    <div class="actions">
+      <a href="#" data-download id="dl-${f.id}">Download</a>
+      ${canDelete ? `<button class="small danger-btn" data-delete>Delete</button>`:''}
+      <span class="hint" style="margin-left:auto">id:${f.id}</span>
+    </div>
+  </div>`;
+}
+function thumbInner(f){
+  const url = URL.createObjectURL(f.blob);
+  if(f.category==='photo'){
+    return `<img src="${url}" alt="${f.name}" loading="lazy">`;
+  }
+  if(f.category==='video'){
+    return `<video src="${url}" muted preload="metadata" style="width:100%;height:100%;object-fit:contain"></video>`;
+  }
+  if(f.category==='audio'){
+    return `<div style="display:grid;place-items:center;color:#cfe0ff"><div>🎧 Audio</div></div>`;
+  }
+  if(f.category==='pdf'){
+    return `<div style="display:grid;place-items:center;color:#cfe0ff"><div>📄 PDF</div></div>`;
+  }
+  if(f.category==='zip'){
+    return `<div style="display:grid;place-items:center;color:#cfe0ff"><div>💬 WhatsApp ZIP</div></div>`;
+  }
+  return `<div style="display:grid;place-items:center;color:#cfe0ff"><div>📦 File</div></div>`;
+}
+
+function render(){
+  const list = applyFilters(FILES).sort((a,b)=> b.addedAt - a.addedAt);
+  const html = list.map(itemTemplate).join('') || `<div class="hint" style="padding:24px">No files yet.</div>`;
+  $('#gallery').innerHTML = html;
+
+  // Wire per-item actions
+  $$('#gallery [data-open]').forEach(el=>{
+    el.addEventListener('click', onOpenItem);
+    el.addEventListener('keypress', (e)=>{ if(e.key==='Enter') onOpenItem(e); });
+  });
+  $$('#gallery [data-delete]').forEach(el=> el.addEventListener('click', onDeleteItem));
+  $$('#gallery [data-download]').forEach(el=> el.addEventListener('click', onDownloadItem));
+}
+
+async function refreshFiles(){
+  FILES = await getAll();
+  render();
+}
+
+/* ===========================
+   Open/Preview (Lightbox)
+=========================== */
+function openLightbox(content, metaText){
+  $('#lightboxMedia').innerHTML = '';
+  $('#lightboxMedia').appendChild(content);
+  $('#lightboxMeta').textContent = metaText || 'Preview';
+  $('#lightbox').classList.add('open');
+}
+$('#closeLightbox').addEventListener('click', ()=> $('#lightbox').classList.remove('open'));
+$('#lightbox').addEventListener('click', (e)=>{ if(e.target.id==='lightbox') $('#lightbox').classList.remove('open'); });
+
+function onOpenItem(e){
+  const id = Number(e.currentTarget.closest('.item').dataset.id);
+  const f = FILES.find(x=>x.id===id); if(!f) return;
+  const url = URL.createObjectURL(f.blob);
+  let node;
+  if(f.category==='photo'){
+    node = new Image();
+    node.src = url; node.alt = f.name; node.style.maxWidth='100%'; node.style.maxHeight='100%';
+  }else if(f.category==='video'){
+    node = document.createElement('video'); node.controls = true; node.src = url;
+  }else if(f.category==='audio'){
+    node = document.createElement('audio'); node.controls = true; node.src = url; node.style.width='100%';
+  }else if(f.category==='pdf'){
+    node = document.createElement('embed'); node.type='application/pdf'; node.src = url;
+  }else{
+    node = document.createElement('div');
+    node.style.display='grid'; node.style.placeItems='center'; node.style.color='#cfe0ff';
+    node.innerHTML = `<div style="text-align:center">
+      <div style="font-size:48px; margin-bottom:12px">${iconFor(f.category)}</div>
+      <div>${f.name}</div>
+      <div class="hint">${f.type || 'unknown'} • ${fmtBytes(f.size)}</div>
+      <div style="margin-top:14px"><a href="${url}" download="${f.name}" class="ghost">Download</a></div>
+    </div>`;
+  }
+  openLightbox(node, `${iconFor(f.category)} ${f.name}`);
+}
+async function onDeleteItem(e){
+  const id = Number(e.currentTarget.closest('.item').dataset.id);
+  if(!confirm('Delete this file?')) return;
+  await del(id);
+  await refreshFiles();
+}
+function onDownloadItem(e){
+  e.preventDefault();
+  const id = Number(e.currentTarget.closest('.item').dataset.id);
+  const f = FILES.find(x=>x.id===id); if(!f) return;
+  const url = URL.createObjectURL(f.blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ===========================
+   Upload handling (Creator)
+=========================== */
+function wireDropZone(){
+  const dz = $('#dropZone');
+  const fi = $('#fileInput');
+
+  function handleFiles(fileList){
+    const files = Array.from(fileList);
+    files.forEach(async (file)=>{
+      const rec = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        category: detectCategory(file),
+        addedAt: Date.now(),
+        blob: file
+      };
+      await addFileRec(rec);
+      await refreshFiles();
+    });
+  }
+
+  dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.classList.add('drag'); });
+  dz.addEventListener('dragleave', ()=> dz.classList.remove('drag'));
+  dz.addEventListener('drop', (e)=>{
+    e.preventDefault(); dz.classList.remove('drag');
+    handleFiles(e.dataTransfer.files);
+  });
+  fi.addEventListener('change', (e)=> handleFiles(e.target.files));
+  $('#clearAllBtn').addEventListener('click', async ()=>{
+    if(!confirm('Delete ALL files from this vault?')) return;
+    await clearAll(); await refreshFiles();
+  });
+}
+
+/* ===========================
+   Filters + Search
+=========================== */
+$$('.chip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    $$('.chip').forEach(x=>x.classList.remove('active'));
+    ch.classList.add('active');
+    ACTIVE_FILTER = ch.dataset.filter;
+    render();
+  });
+});
+$('#searchBox').addEventListener('input', (e)=>{ SEARCH = (e.target.value||'').trim().toLowerCase(); render(); });
+
+/* ===========================
+   Login tabs
+=========================== */
+$('#tab-viewer').addEventListener('click', ()=>{
+  $('#tab-viewer').setAttribute('aria-selected','true');
+  $('#tab-creator').setAttribute('aria-selected','false');
+  $('#panel-viewer').classList.remove('hide');
+  $('#panel-creator').classList.add('hide');
+});
+$('#tab-creator').addEventListener('click', ()=>{
+  $('#tab-viewer').setAttribute('aria-selected','false');
+  $('#tab-creator').setAttribute('aria-selected','true');
+  $('#panel-viewer').classList.add('hide');
+  $('#panel-creator').classList.remove('hide');
+});
+
+/* ===========================
+   Login logic
+=========================== */
+async function checkLogin(kind, pass){
+  const hash = await sha256(pass);
+  const key = kind==='creator' ? PASS_KEYS.creator : PASS_KEYS.viewer;
+  const expected = localStorage.getItem(key);
+  return hash === expected;
+}
+$('#viewerForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const pass = $('#viewerPass').value;
+  if(await checkLogin('viewer', pass)){ afterLogin('viewer'); }
+  else alert('Wrong viewer password ❌');
+});
+$('#creatorForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const pass = $('#creatorPass').value;
+  if(await checkLogin('creator', pass)){ afterLogin('creator'); }
+  else alert('Wrong creator password ❌');
+});
+function afterLogin(role){
+  setRole(role);
+  refreshFiles();
+}
+
+/* ===========================
+   Logout
+=========================== */
+$('#logoutBtn').addEventListener('click', ()=>{
+  setRole('guest');
+});
+
+/* ===========================
+   Settings
+=========================== */
+$('#settingsBtn').addEventListener('click', ()=>{
+  $('#settingsCard').classList.toggle('hide');
+});
+$('#savePasswordsBtn').addEventListener('click', async ()=>{
+  const c = $('#newCreatorPass').value;
+  const v = $('#newViewerPass').value;
+  let changed = false;
+  if(c){
+    savePasswords({creatorHash: await sha256(c)}); changed = true;
+  }
+  if(v){
+    savePasswords({viewerHash: await sha256(v)}); changed = true;
+  }
+  $('#newCreatorPass').value=''; $('#newViewerPass').value='';
+  const el = $('#passStatus');
+  if(changed){ el.textContent='Passwords updated ✅'; el.className='status ok'; }
+  else{ el.textContent='No changes'; el.className='status hint'; }
+  setTimeout(()=>{ el.textContent=''; el.className='status'; }, 2500);
+});
+
+/* ===========================
+   Export / Import
+=========================== */
+$('#exportBtn').addEventListener('click', async ()=>{
+  const all = await getAll();
+  // Convert blobs to base64 for portability
+  async function blobToB64(blob){
+    const arrBuf = await blob.arrayBuffer();
+    let binary = '';
+    const bytes = new Uint8Array(arrBuf);
+    const chunk = 0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+    }
+    return btoa(binary);
+  }
+  const payload = await Promise.all(all.map(async f=>({
+    ...f,
+    blob: { b64: await blobToB64(f.blob), type: f.type, name: f.name }
+  })));
+  const blob = new Blob([JSON.stringify({version:1, exportedAt:Date.now(), files: payload}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `vault-export-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+});
+
+$('#importBtn').addEventListener('click', ()=> $('#importInput').click());
+$('#importInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const text = await file.text();
+  try{
+    const data = JSON.parse(text);
+    if(!(data && data.files && Array.isArray(data.files))) throw new Error('Invalid file');
+    for(const rec of data.files){
+      const { b64, type, name } = rec.blob || {};
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], {type});
+      await addFileRec({
+        name, size: blob.size, type, category: detectCategory({name, type}),
+        addedAt: rec.addedAt || Date.now(), blob
+      });
+    }
+    await refreshFiles();
+    alert('Import complete ✅');
+  }catch(err){
+    alert('Import failed ❌: ' + err.message);
+  }finally{
+    e.target.value = '';
+  }
+});
+
+/* ===========================
+   Google Password Save Hints
+=========================== */
+function showSaveHint(role){
+  alert('To save the password in Google Password Manager: log in successfully when prompted. This form uses standard autocomplete so browsers can offer to save passwords.');
+}
+$('#saveViewerHint').addEventListener('click', ()=> showSaveHint('viewer'));
+$('#saveCreatorHint').addEventListener('click', ()=> showSaveHint('creator'));
+
+/* ===========================
+   Boot
+=========================== */
+(async function init(){
+  await ensureDefaultPasswords();
+  db = await openDB();
+  wireDropZone();
+  await refreshFiles();
+
+  // Accessibility niceties: add keyboard focus ripple
+  $$('#gallery').forEach(()=>{});
+})();
+</script>
+</body>
+</html>
+
+
+Get Microsoft OneNote: https://aka.ms/GetOneNoteMobile
